@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шер Урду</title>
+<meta name="description" content="Урду как в Duolingo: слова, фразы, грамматика и тренажёр письма насхом и насталиком.">
+<meta name="theme-color" content="#240a0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Шер Урду">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Prata&family=Manrope:wght@400;600;700;800&display=swap">
+<style>
+/* Макет: одна колонка «как телефон» (до 520px), сверху — шапка со счётчиками, снизу — панель вкладок.
+   Урок открывается поверх всего экрана. Тёмно-бордовый «лак» с золотом и тигриным оранжевым. */
+:root {
+  color-scheme: dark;
+  --lacquer: #240a0e;        /* фон: тёмный бордовый лак */
+  --lacquer-2: #3a0f16;      /* приподнятые поверхности */
+  --lacquer-3: #561722;      /* карточки, плитки */
+  --crimson: #9e2433;        /* киноварь печати, ошибки */
+  --gold: #d8a543;           /* сусальное золото — главный акцент */
+  --gold-hi: #f2cf7a;
+  --tiger: #e57a22;          /* тигриный оранжевый — вторичный акцент */
+  --jade: #4fae84;           /* «верно» */
+  --ink: #f5e6c8;            /* текст: слоновая кость */
+  --ink-dim: #c8a687;
+  --ink-faint: #8f6a5c;
+  --line: rgba(216,165,67,.22);
+  --display: "Prata", "Georgia", serif;
+  --body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --nastaliq: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Noto Naskh Arabic", serif;
+  --naskh: "Noto Naskh Arabic", "Noto Sans Arabic", "Arial", serif;
+  --urdu: var(--nastaliq);
+  --urdu-lh: 2.25;
+  --radius: 18px;
+}
+:root[data-script="naskh"] { --urdu: var(--naskh); --urdu-lh: 1.7; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  margin: 0; color: var(--ink); font: 15px/1.5 var(--body);
+  background:
+    radial-gradient(120% 70% at 85% -10%, rgba(229,122,34,.16), transparent 60%),
+    radial-gradient(90% 60% at -10% 110%, rgba(158,36,51,.35), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .85 0 0 0 0 .55 0 0 0 0 .3 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--lacquer);
+  background-attachment: fixed;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+.ur { font-family: var(--urdu); line-height: var(--urdu-lh); direction: rtl; unicode-bidi: isolate; }
+.ur.inl { font-size: 1.1em; line-height: 1.1; color: var(--gold-hi); vertical-align: -0.1em; }
+.nastaliq { font-family: var(--nastaliq) !important; line-height: 2.3; }
+.naskh { font-family: var(--naskh) !important; line-height: 1.7; }
+.app { max-width: 520px; margin: 0 auto; min-height: 100%; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 calc(96px + env(safe-area-inset-bottom, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--lacquer); }
+
+/* ---------- Шапка ---------- */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 10px; padding: 10px 0;
+  background: linear-gradient(var(--lacquer) 70%, transparent); }
+.seal { width: 42px; height: 42px; flex: none; border-radius: 9px; background: var(--crimson); display: grid; place-items: center;
+  box-shadow: inset 0 0 0 2px rgba(242,207,122,.45), 0 2px 10px rgba(0,0,0,.4); color: var(--gold-hi); font-family: var(--nastaliq); font-size: 17px; line-height: 1; padding-top: 6px; }
+.brand { font-family: var(--display); font-size: 20px; letter-spacing: .02em; color: var(--gold-hi); }
+.stats { margin-left: auto; display: flex; gap: 10px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stat { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; }
+.stat svg { width: 18px; height: 18px; }
+.script-toggle { display: flex; background: var(--lacquer-2); border: 1px solid var(--line); border-radius: 999px; padding: 3px; margin: 4px 0 14px; }
+.script-toggle button { flex: 1; border: 0; background: none; border-radius: 999px; padding: 6px 8px; color: var(--ink-dim); font-weight: 700; font-size: 13px; display: flex; gap: 6px; align-items: center; justify-content: center; }
+.script-toggle button .ur { font-size: 16px; line-height: 1.4; }
+.script-toggle button.on { background: var(--gold); color: var(--lacquer); }
+
+/* ---------- Панель вкладок ---------- */
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 25; display: flex; justify-content: center;
+  background: rgba(36,10,14,.94); backdrop-filter: blur(8px); border-top: 1px solid var(--line);
+  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+.tabbar .in { display: flex; width: 100%; max-width: 520px; }
+.tab { flex: 1; border: 0; background: none; padding: 6px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--ink-faint); font-size: 11.5px; font-weight: 700; border-radius: 12px; }
+.tab svg { width: 24px; height: 24px; }
+.tab.on { color: var(--gold-hi); background: rgba(216,165,67,.1); }
+
+/* ---------- Общие ---------- */
+h1, h2 { font-family: var(--display); font-weight: 400; color: var(--gold-hi); text-wrap: balance; margin: 0; }
+h1 { font-size: 26px; } h2 { font-size: 20px; }
+.muted { color: var(--ink-dim); }
+.eyebrow { font-size: 11.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--tiger); font-weight: 800; }
+.btn { border: 0; border-radius: 14px; padding: 13px 18px; font-weight: 800; letter-spacing: .02em; background: var(--gold); color: var(--lacquer);
+  box-shadow: 0 4px 0 #8f6420; transition: transform .08s, box-shadow .08s; }
+.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #8f6420; }
+.btn[disabled] { background: var(--lacquer-3); color: var(--ink-faint); box-shadow: 0 4px 0 #2b0b10; cursor: default; }
+.btn.ghost { background: transparent; color: var(--gold-hi); box-shadow: inset 0 0 0 2px var(--line); }
+.btn.wide { width: 100%; }
+.chip { border: 1px solid var(--line); background: var(--lacquer-2); border-radius: 999px; padding: 6px 12px; color: var(--ink); font-weight: 700; }
+.chip.on { background: var(--gold); color: var(--lacquer); border-color: var(--gold); }
+.panel { background: linear-gradient(180deg, rgba(86,23,34,.7), rgba(58,15,22,.7)); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 60; background: var(--lacquer-3); border: 1px solid var(--gold);
+  padding: 10px 16px; border-radius: 12px; max-width: min(440px, 90vw); font-size: 14px; }
+.stripes { height: 8px; border-radius: 4px; margin: 6px 0 14px;
+  background: repeating-linear-gradient(115deg, var(--tiger) 0 14px, #2a0b0f 14px 20px, var(--gold) 20px 30px, #2a0b0f 30px 36px); opacity: .55; }
+
+/* ---------- Путь уроков ---------- */
+.unit { margin: 6px 0 26px; }
+.unit-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: var(--radius);
+  background: linear-gradient(120deg, var(--crimson), #6d1722); box-shadow: inset 0 0 0 1px rgba(242,207,122,.35); }
+.unit-head .t { flex: 1; min-width: 0; }
+.unit-head .t b { display: block; font-family: var(--display); font-weight: 400; font-size: 19px; color: var(--gold-hi); }
+.unit-head .t span { font-size: 13px; color: var(--ink); opacity: .85; }
+.unit-head .uw { font-size: 30px; color: var(--gold-hi); }
+.path { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0 4px; }
+.node { position: relative; width: 74px; height: 74px; border-radius: 50%; border: 0; display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, var(--gold-hi), var(--gold) 60%, #9a6c22); color: var(--lacquer);
+  box-shadow: 0 6px 0 #7a5418, 0 0 0 6px rgba(216,165,67,.12); }
+.node svg { width: 32px; height: 32px; }
+.node.locked { background: radial-gradient(circle at 35% 30%, #6a2a33, #451219); color: var(--ink-faint); box-shadow: 0 6px 0 #2a0a0f; cursor: default; }
+.node.current { background: radial-gradient(circle at 35% 30%, #ffb15e, var(--tiger) 60%, #a24d0c); box-shadow: 0 6px 0 #7a3807, 0 0 0 8px rgba(229,122,34,.2); animation: pulse 2s ease-in-out infinite; }
+.node .stars { position: absolute; bottom: -12px; display: flex; gap: 1px; }
+.node .stars svg { width: 14px; height: 14px; }
+.node-label { font-size: 12.5px; color: var(--ink-dim); margin-top: -4px; text-align: center; max-width: 160px; }
+.node-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+@keyframes pulse { 50% { box-shadow: 0 6px 0 #7a3807, 0 0 0 14px rgba(229,122,34,.08); } }
+
+/* ---------- Урок (полноэкранный) ---------- */
+.lesson { position: fixed; inset: 0; z-index: 40; background: var(--lacquer); display: flex; flex-direction: column;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.lesson-in { width: 100%; max-width: 520px; margin: 0 auto; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.lesson-top { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+.x { border: 0; background: none; color: var(--ink-dim); padding: 4px; }
+.x svg { width: 26px; height: 26px; }
+.bar { flex: 1; height: 14px; border-radius: 99px; background: var(--lacquer-3); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--tiger), var(--gold-hi)); transition: width .35s; }
+.ex { flex: 1; overflow-y: auto; padding: 8px 0 16px; min-height: 0; }
+.ex h2 { margin-bottom: 14px; }
+.lesson-foot { padding: 12px 0 calc(14px + env(safe-area-inset-bottom, 0px)); }
+.prompt-ur { font-size: 40px; color: var(--gold-hi); text-align: center; padding: 8px 0; }
+.prompt-ru { font-size: 22px; font-weight: 700; text-align: center; padding: 12px 0; }
+.speak { border: 0; background: var(--lacquer-3); color: var(--gold-hi); border-radius: 12px; width: 44px; height: 44px; display: inline-grid; place-items: center; }
+.speak svg { width: 22px; height: 22px; }
+.translit { text-align: center; color: var(--ink-dim); font-size: 15px; }
+.options { display: grid; gap: 10px; margin-top: 14px; }
+.opt { border: 2px solid var(--line); background: var(--lacquer-2); border-radius: 14px; padding: 12px 14px; text-align: center; font-weight: 700; font-size: 16px; color: var(--ink); box-shadow: 0 3px 0 #1c0609; }
+.opt.ur { font-size: 24px; font-weight: 400; padding: 2px 14px; }
+.opt.sel { border-color: var(--gold); background: rgba(216,165,67,.14); }
+.opt.right { border-color: var(--jade); background: rgba(79,174,132,.16); }
+.opt.wrong { border-color: var(--crimson); background: rgba(158,36,51,.25); }
+.teach { text-align: center; }
+.teach .big { font-size: 64px; color: var(--gold-hi); }
+.teach .ru { font-size: 22px; font-weight: 800; margin-top: 4px; }
+.teach .note { margin-top: 12px; text-align: left; }
+.wordbreak { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; direction: rtl; margin-top: 12px; }
+.wordbreak > div { background: var(--lacquer-2); border: 1px solid var(--line); border-radius: 12px; padding: 4px 10px; text-align: center; }
+.wordbreak .w { font-size: 24px; color: var(--gold-hi); }
+.wordbreak .g { direction: ltr; font-size: 12px; color: var(--ink-dim); }
+.answer-line { min-height: 74px; border-bottom: 2px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px; align-content: flex-start; padding: 8px 0; direction: rtl; }
+.bank { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 18px; direction: rtl; }
+.tile { border: 2px solid var(--line); background: var(--lacquer-2); border-radius: 12px; padding: 0 12px; font-size: 24px; box-shadow: 0 3px 0 #1c0609; color: var(--ink); }
+.tile.used { visibility: hidden; }
+.pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pairs .opt { min-height: 58px; display: grid; place-items: center; }
+.pairs .opt.done { opacity: .25; border-color: var(--jade); }
+.rule table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.rule td, .rule th { border-bottom: 1px solid var(--line); padding: 6px 4px; text-align: left; vertical-align: middle; }
+.rule th { color: var(--tiger); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.rule .ur { font-size: 22px; color: var(--gold-hi); white-space: nowrap; }
+.rule h2 .ur, .unit-head .ur { font-size: 1.15em; }
+.fill-sentence { font-size: 34px; text-align: center; color: var(--ink); }
+.fill-sentence .gap { color: var(--tiger); border-bottom: 3px solid var(--tiger); padding: 0 10px; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  border-top: 2px solid; animation: up .22s ease-out; }
+.sheet .in { max-width: 520px; margin: 0 auto; display: grid; gap: 10px; max-height: 62vh; overflow-y: auto; }
+.sheet.ok { background: #143327; border-color: var(--jade); }
+.sheet.bad { background: #3b0d14; border-color: var(--crimson); }
+.sheet .head { font-weight: 800; font-size: 18px; }
+.sheet.ok .head { color: #8fe0b9; } .sheet.bad .head { color: #ff9aa6; }
+.sheet .ur { font-size: 24px; }
+@keyframes up { from { transform: translateY(100%); } }
+.done-screen { text-align: center; display: grid; gap: 14px; justify-items: center; padding-top: 30px; }
+.done-screen .seal { width: 110px; height: 110px; border-radius: 22px; font-size: 40px; }
+
+/* ---------- Алфавит ---------- */
+.abc { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+.letter { border: 1px solid var(--line); background: var(--lacquer-2); border-radius: 16px; padding: 4px 4px 8px; text-align: center; position: relative; }
+.letter .g { font-size: 38px; color: var(--gold-hi); line-height: 1.9; display: block; }
+.letter .n { font-size: 12px; font-weight: 700; color: var(--ink); display: block; }
+.letter .s { font-size: 11px; color: var(--ink-dim); display: block; }
+.letter .best { position: absolute; top: 6px; left: 6px; display: flex; }
+.letter .best svg { width: 10px; height: 10px; }
+.forms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; margin: 12px 0; }
+.forms div { background: var(--lacquer-2); border-radius: 12px; padding: 2px 0 6px; border: 1px solid var(--line); }
+.forms .ur { font-size: 36px; color: var(--gold-hi); display: block; }
+.forms small { color: var(--ink-dim); font-size: 11px; }
+.modal { position: fixed; inset: 0; z-index: 45; background: rgba(15,3,5,.7); display: flex; align-items: flex-end; justify-content: center; }
+.modal .card { width: 100%; max-width: 520px; background: var(--lacquer-2); border-top: 2px solid var(--gold); border-radius: 22px 22px 0 0; max-height: 88vh; overflow-y: auto;
+  padding: 18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation: up .22s ease-out; }
+
+/* ---------- Письмо ---------- */
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.targets { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; margin: 8px 0; scrollbar-width: thin; }
+.targets .chip { flex: none; font-size: 22px; padding: 0 12px; line-height: 2; }
+.canvas-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; max-width: 100%; border-radius: 22px; overflow: hidden; touch-action: none;
+  background: radial-gradient(circle at 50% 40%, #fbefd3, #ecd3a4); box-shadow: inset 0 0 0 3px var(--gold), 0 8px 26px rgba(0,0,0,.45); }
+.canvas-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.canvas-wrap .dir { position: absolute; top: 10px; right: 14px; color: #8a5a2c; font-size: 12px; font-weight: 800; letter-spacing: .06em; pointer-events: none; }
+.write-actions { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px; margin-top: 12px; }
+.score { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.score .stars svg { width: 26px; height: 26px; }
+.tip { font-size: 13.5px; color: var(--ink-dim); margin-top: 8px; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.compare div { background: var(--lacquer-2); border: 1px solid var(--line); border-radius: 14px; text-align: center; padding: 4px; }
+.compare .ur { font-size: 40px; color: var(--gold-hi); display: block; }
+.compare small { color: var(--ink-dim); }
+
+/* ---------- Профиль ---------- */
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0; }
+.kpi { background: var(--lacquer-2); border: 1px solid var(--line); border-radius: 16px; padding: 10px; text-align: center; }
+.kpi b { display: block; font-size: 24px; color: var(--gold-hi); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 12px; color: var(--ink-dim); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.switch { width: 50px; height: 30px; border-radius: 99px; border: 0; background: var(--lacquer-3); position: relative; }
+.switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; background: var(--ink-dim); transition: left .15s; }
+.switch.on { background: var(--gold); } .switch.on::after { left: 24px; background: var(--lacquer); }
+.about p { margin: 8px 0; color: var(--ink-dim); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (min-width: 700px) { .app { padding-top: 10px; } }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="seal" aria-hidden="true">اردو</div>
+    <div class="brand">Шер Урду</div>
+    <div class="stats">
+      <span class="stat" title="Дней подряд"><svg viewBox="0 0 24 24" fill="#e57a22"><path d="M12 2c1 4-3 5-3 9a3 3 0 0 0 6 0c0-1-.4-2-1-3 3 1 5 4 5 7a7 7 0 0 1-14 0c0-6 6-8 7-13z"/></svg><b id="sStreak">0</b></span>
+      <span class="stat" title="Опыт"><svg viewBox="0 0 24 24" fill="#d8a543"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg><b id="sXp">0</b></span>
+      <span class="stat" title="Сердца"><svg viewBox="0 0 24 24" fill="#e0475a"><path d="M12 21s-8-5-8-11a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 6-8 11-8 11z"/></svg><b id="sHearts">5</b></span>
+    </div>
+  </header>
+  <div class="script-toggle" role="group" aria-label="Шрифт урду">
+    <button id="scNastaliq" data-s="nastaliq"><span class="ur nastaliq">نستعلیق</span> Насталик</button>
+    <button id="scNaskh" data-s="naskh"><span class="ur naskh">نسخ</span> Насх</button>
+  </div>
+  <main id="view"></main>
+</div>
+
+<nav class="tabbar"><div class="in">
+  <button class="tab" data-tab="path"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20c4 0 4-5 8-5s4-5 8-5"/><circle cx="4" cy="20" r="2"/><circle cx="12" cy="15" r="2"/><circle cx="20" cy="10" r="2"/><path d="M20 4v6"/></svg>Путь</button>
+  <button class="tab" data-tab="abc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Алфавит</button>
+  <button class="tab" data-tab="write"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg>Письмо</button>
+  <button class="tab" data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Профиль</button>
+</div></nav>
+
+<script>
+"use strict";
+// =====================================================================
+// Данные курса. tr — русская транскрипция, lat — латиница, g — род (m/f) для грамматики.
+// =====================================================================
+const UNITS = [
+  { id: "u1", title: "Приветствия", sub: "Салам, спасибо, до свидания", uw: "سلام",
+    items: [
+      { ur: "سلام", tr: "салаам", ru: "привет", note: "Буквально «мир». Полная форма: السلام علیکم — ассаляму алейкум, ответ: وعلیکم السلام." },
+      { ur: "شکریہ", tr: "шукрия", ru: "спасибо" },
+      { ur: "جی ہاں", tr: "джи хаан", ru: "да (вежливо)", note: "جی — частица вежливости, ہاں — «да»." },
+      { ur: "نہیں", tr: "нахи̃", ru: "нет", note: "Последняя буква ں даёт носовой звук." },
+      { ur: "خدا حافظ", tr: "худаа хаафиз", ru: "до свидания", note: "«Бог — хранитель»." },
+      { ur: "ٹھیک", tr: "тхиик", ru: "хорошо, в порядке" },
+    ],
+    phrases: [
+      { ur: "آپ کیسے ہیں", ru: "Как Вы? (к мужчине)", tr: "аап кайсе хаин", gloss: ["Вы", "как", "есть"] },
+      { ur: "میں ٹھیک ہوں", ru: "Я в порядке", tr: "мэ̃ тхиик хуу̃", gloss: ["я", "в порядке", "есть"] },
+    ],
+    trace: ["سلام", "ٹھیک"] },
+  { id: "u2", title: "Я и ты", sub: "Местоимения и «меня зовут»", uw: "میں",
+    items: [
+      { ur: "میں", tr: "мэ̃", ru: "я" },
+      { ur: "تم", tr: "тум", ru: "ты" },
+      { ur: "آپ", tr: "аап", ru: "Вы (вежливо)" },
+      { ur: "وہ", tr: "во", ru: "он, она, тот" },
+      { ur: "یہ", tr: "йе", ru: "это, этот" },
+      { ur: "نام", tr: "наам", ru: "имя" },
+      { ur: "کیا", tr: "кйаа", ru: "что; вопросительная частица" },
+    ],
+    phrases: [
+      { ur: "میرا نام علی ہے", ru: "Меня зовут Али", tr: "мера наам Али хэ", gloss: ["мой", "имя", "Али", "есть"] },
+      { ur: "آپ کا نام کیا ہے", ru: "Как Вас зовут?", tr: "аап каа наам кйаа хэ", gloss: ["Вы", "(чей)", "имя", "что", "есть"] },
+      { ur: "یہ کیا ہے", ru: "Что это?", tr: "йе кйаа хэ", gloss: ["это", "что", "есть"] },
+    ],
+    trace: ["میں", "نام"] },
+  { id: "u3", title: "Сердце", sub: "«Я тебя люблю» по словам", uw: "دل",
+    items: [
+      { ur: "دل", tr: "дил", ru: "сердце" },
+      { ur: "محبت", tr: "мохаббат", ru: "любовь" },
+      { ur: "پیار", tr: "пьяар", ru: "любовь, нежность" },
+      { ur: "دوست", tr: "дост", ru: "друг" },
+      { ur: "خوش", tr: "кхуш", ru: "радостный, счастливый" },
+      { ur: "مجھے", tr: "муджхе", ru: "мне, меня", note: "Слитная форма مجھ کو — «мне». Чувства в урду выражаются через «мне есть…»." },
+    ],
+    phrases: [
+      { ur: "مجھے تم سے محبت ہے", ru: "Я тебя люблю", tr: "муджхе тум се мохаббат хэ", gloss: ["мне", "ты", "к/от", "любовь", "есть"],
+        note: "Дословно «мне к тебе любовь есть». Подлежащее чувства стоит в форме «мне» (مجھے), объект — с послелогом سے." },
+      { ur: "میں خوش ہوں", ru: "Я счастлив(а)", tr: "мэ̃ кхуш хуу̃", gloss: ["я", "счастлив", "есть"] },
+      { ur: "وہ میرا دوست ہے", ru: "Он мой друг", tr: "во мера дост хэ", gloss: ["он", "мой", "друг", "есть"] },
+    ],
+    trace: ["دل", "محبت"] },
+  { id: "u4", title: "Семья и дом", sub: "Кто есть кто", uw: "گھر",
+    items: [
+      { ur: "گھر", tr: "гхар", ru: "дом", g: "m" },
+      { ur: "امی", tr: "аммии", ru: "мама", g: "f" },
+      { ur: "ابو", tr: "аббу", ru: "папа", g: "m" },
+      { ur: "بھائی", tr: "бхаии", ru: "брат", g: "m" },
+      { ur: "بہن", tr: "бэхэн", ru: "сестра", g: "f" },
+      { ur: "کتاب", tr: "китааб", ru: "книга", g: "f" },
+      { ur: "بڑا", tr: "бараа", ru: "большой", note: "Прилагательное на ‑ا меняется по роду: بڑا (м), بڑی (ж), بڑے (мн./косв.)." },
+    ],
+    phrases: [
+      { ur: "یہ میرا گھر ہے", ru: "Это мой дом", tr: "йе мера гхар хэ", gloss: ["это", "мой", "дом", "есть"] },
+      { ur: "میری بہن خوش ہے", ru: "Моя сестра счастлива", tr: "мери бэхэн кхуш хэ", gloss: ["моя", "сестра", "счастлива", "есть"] },
+    ],
+    trace: ["گھر", "کتاب"] },
+  { id: "u5", title: `Чей? <span class="ur">کا</span> · <span class="ur">کی</span> · <span class="ur">کے</span>`, sub: "Послелог родительного падежа", uw: "کا",
+    grammar: true,
+    items: [
+      { ur: "کا", tr: "каа", ru: "«чей» перед словом м. р. ед. ч.", g: "m" },
+      { ur: "کی", tr: "кии", ru: "«чей» перед словом ж. р.", g: "f" },
+      { ur: "کے", tr: "ке", ru: "«чей» перед м. р. мн. ч. и в косвенной форме", g: "pl" },
+      { ur: "میرا", tr: "мера", ru: "мой (м. р.)" },
+      { ur: "میری", tr: "мери", ru: "моя (ж. р.)" },
+      { ur: "میرے", tr: "мере", ru: "мои; моего (косв.)" },
+    ],
+    rule: { title: `Послелог <span class="ur">کا</span> / <span class="ur">کی</span> / <span class="ur">کے</span> — «родительный падеж»`,
+      html: `<p>Владелец стоит <b>первым</b>, затем послелог, затем то, чем владеют: «Али <i>чей</i> дом» → <span class="ur">علی کا گھر</span>. Форма послелога согласуется <b>не с владельцем, а с предметом</b>:</p>
+        <table><tr><th>Предмет</th><th>Форма</th><th>Пример</th></tr>
+        <tr><td>м. р., ед. ч.</td><td class="ur">کا</td><td><span class="ur">علی کا گھر</span><br><small>дом Али</small></td></tr>
+        <tr><td>ж. р.</td><td class="ur">کی</td><td><span class="ur">علی کی کتاب</span><br><small>книга Али</small></td></tr>
+        <tr><td>м. р. мн. ч. или перед другим послелогом</td><td class="ur">کے</td><td><span class="ur">علی کے بھائی</span><br><small>братья Али</small></td></tr></table>
+        <p>Так же устроены притяжательные местоимения: <span class="ur">میرا</span> / <span class="ur">میری</span> / <span class="ur">میرے</span> — мой / моя / мои; <span class="ur">تمہارا</span> / <span class="ur">تمہاری</span> / <span class="ur">تمہارے</span> — твой / твоя / твои.</p>` },
+    fills: [
+      { ur: "علی ___ گھر", ru: "дом Али", answer: "کا", why: "گھر (дом) — мужской род, ед. ч. → کا." },
+      { ur: "علی ___ کتاب", ru: "книга Али", answer: "کی", why: "کتاب (книга) — женский род → کی." },
+      { ur: "علی ___ بھائی", ru: "братья Али", answer: "کے", why: "Речь о нескольких братьях — мужской род, мн. ч. → کے." },
+      { ur: "آپ ___ نام", ru: "Ваше имя", answer: "کا", why: "نام (имя) — мужской род → کا. Поэтому آپ کا نام کیا ہے؟" },
+      { ur: "امی ___ دل", ru: "сердце мамы", answer: "کا", why: "Род владельца (мама — ж. р.) не важен! دل — мужской род → کا." },
+      { ur: "ابو ___ بہن", ru: "сестра папы", answer: "کی", why: "Предмет — بہن (сестра), женский род → کی, хоть владелец и мужчина." },
+    ],
+    phrases: [
+      { ur: "یہ علی کی کتاب ہے", ru: "Это книга Али", tr: "йе Али кии китааб хэ", gloss: ["это", "Али", "(чья)", "книга", "есть"] },
+      { ur: "علی کا گھر بڑا ہے", ru: "Дом Али большой", tr: "Али каа гхар бараа хэ", gloss: ["Али", "(чей)", "дом", "большой", "есть"] },
+    ],
+    trace: ["کا", "کی"] },
+  { id: "u6", title: "Где? Послелоги", sub: `<span class="ur">میں</span> · <span class="ur">پر</span> · <span class="ur">سے</span> · <span class="ur">کو</span>`, uw: "میں",
+    grammar: true,
+    items: [
+      { ur: "میں", tr: "мэ̃", ru: "в (послелог)", note: "Пишется так же, как «я» (میں)! Различаются по месту в предложении: послелог стоит после слова." },
+      { ur: "پر", tr: "пар", ru: "на" },
+      { ur: "سے", tr: "се", ru: "от, из, с (чем)" },
+      { ur: "کو", tr: "ко", ru: "к, для (дательный)" },
+    ],
+    rule: { title: "Послелоги стоят после слова",
+      html: `<p>В урду нет предлогов: служебное слово идёт <b>после</b> существительного. А существительное мужского рода на ‑ا перед послелогом меняет окончание на ‑ے: <span class="ur">کمرا</span> → <span class="ur">کمرے میں</span> (в комнате).</p>
+        <table><tr><th>Послелог</th><th>Смысл</th><th>Пример</th></tr>
+        <tr><td class="ur">میں</td><td>в</td><td><span class="ur">گھر میں</span><br><small>в доме</small></td></tr>
+        <tr><td class="ur">پر</td><td>на</td><td><span class="ur">میز پر</span><br><small>на столе</small></td></tr>
+        <tr><td class="ur">سے</td><td>от, из</td><td><span class="ur">پاکستان سے</span><br><small>из Пакистана</small></td></tr>
+        <tr><td class="ur">کو</td><td>к, для</td><td><span class="ur">مجھ کو = مجھے</span><br><small>мне</small></td></tr></table>` },
+    fills: [
+      { ur: "کتاب گھر ___ ہے", ru: "Книга в доме", answer: "میں", why: "«В» — میں, после слова گھر.", options: ["میں", "پر", "سے"] },
+      { ur: "کتاب میز ___ ہے", ru: "Книга на столе", answer: "پر", why: "«На» — پر.", options: ["میں", "پر", "کو"] },
+      { ur: "میں پاکستان ___ ہوں", ru: "Я из Пакистана", answer: "سے", why: "«Из, от» — سے.", options: ["سے", "کو", "پر"] },
+      { ur: "مجھے تم ___ محبت ہے", ru: "Я тебя люблю", answer: "سے", why: "С глаголами чувств объект берёт سے: «любовь к тебе» = تم سے محبت.", options: ["کو", "سے", "میں"] },
+    ],
+    phrases: [
+      { ur: "میں گھر میں ہوں", ru: "Я дома", tr: "мэ̃ гхар мэ̃ хуу̃", gloss: ["я", "дом", "в", "есть"] },
+    ],
+    trace: ["پر", "سے"] },
+];
+const EXTRA_DISTRACTORS = ["پانی", "چائے", "کھانا", "اچھا", "ہے", "ہوں", "کا", "کی", "سے", "میں", "تم"];
+
+// Алфавит урду: буква, название, звук, соединяется ли со следующей, пример, подсказка к начертанию
+const LETTERS = [
+  ["ا", "алиф", "а / долгое аа", 0, "آپ", "Одна вертикальная черта сверху вниз. Не соединяется со следующей буквой."],
+  ["ب", "бэ", "б", 1, "بہن", "Лодочка справа налево, точка снизу."],
+  ["پ", "пэ", "п", 1, "پیار", "Как ب, но три точки снизу. Звука «п» нет в арабском — буква придумана для персидского и урду."],
+  ["ت", "тэ", "т (зубное)", 1, "تم", "Лодочка, две точки сверху."],
+  ["ٹ", "ттэ", "т (ретрофлексное)", 1, "ٹھیک", "Лодочка, сверху маленькая «та» (ط): кончик языка загнут назад."],
+  ["ث", "сэ", "с", 1, "ثابت", "Лодочка, три точки сверху."],
+  ["ج", "джим", "дж", 1, "جی", "Изгиб с хвостом вниз, точка внутри."],
+  ["چ", "чэ", "ч", 1, "چائے", "Как ج, но три точки."],
+  ["ح", "бари хэ", "х (глубокое)", 1, "حافظ", "Изгиб без точек."],
+  ["خ", "кхэ", "х (как в «хор»)", 1, "خوش", "Изгиб, точка сверху."],
+  ["د", "даал", "д (зубное)", 0, "دل", "Небольшой уголок. Не соединяется со следующей."],
+  ["ڈ", "ддаал", "д (ретрофлексное)", 0, "ڈاک", "Уголок с маленькой «та» сверху."],
+  ["ذ", "заал", "з", 0, "ذرا", "Уголок с точкой сверху."],
+  ["ر", "рэ", "р", 0, "رات", "Дуга вниз под строку. Не соединяется со следующей."],
+  ["ڑ", "ррэ", "р (ретрофлексное)", 0, "بڑا", "Дуга с маленькой «та» сверху. В начале слова не встречается."],
+  ["ز", "зэ", "з", 0, "زبان", "Дуга с точкой сверху."],
+  ["ژ", "жэ", "ж", 0, "ٹیلیویژن", "Дуга с тремя точками; встречается в заимствованиях."],
+  ["س", "син", "с", 1, "سلام", "Три зубчика и чаша."],
+  ["ش", "шин", "ш", 1, "شکریہ", "Как س, три точки сверху."],
+  ["ص", "суаад", "с", 1, "صبح", "Петля и чаша."],
+  ["ض", "зуаад", "з", 1, "ضرور", "Как ص, точка сверху."],
+  ["ط", "тоэ", "т", 1, "طرح", "Петля и вертикальная черта."],
+  ["ظ", "зоэ", "з", 1, "ظلم", "Как ط, точка сверху."],
+  ["ع", "айн", "гортанная смычка", 1, "علی", "Маленькая дуга сверху и большая чаша."],
+  ["غ", "гайн", "г (картавое, как фр. r)", 1, "غم", "Как ع, точка сверху."],
+  ["ف", "фэ", "ф", 1, "فون", "Петелька, точка сверху."],
+  ["ق", "кааф", "к (глубокое)", 1, "قلم", "Петелька, две точки, глубокий хвост."],
+  ["ک", "каaф", "к", 1, "کتاب", "Наклонная черта с «крышей»."],
+  ["گ", "гаaф", "г", 1, "گھر", "Как ک, с двумя «крышами»."],
+  ["ل", "лаам", "л", 1, "لال", "Высокая черта с чашей внизу."],
+  ["م", "миим", "м", 1, "محبت", "Кружок с хвостиком вниз."],
+  ["ن", "нуун", "н", 1, "نام", "Чаша с точкой сверху."],
+  ["ں", "нуун гунна", "носовой гласный", 1, "نہیں", "Чаша без точки, только в конце слова: делает гласный носовым."],
+  ["و", "ваао", "в / у / о", 0, "دوست", "Кружок с хвостом вниз. Не соединяется со следующей."],
+  ["ہ", "чхоти хэ", "х", 1, "ہاں", "Маленькая петля (в насталике — «гольфовая клюшка»)."],
+  ["ھ", "до-чашми хэ", "придыхание (бх, тх, гх…)", 1, "بھائی", "«Двухглазая хэ»: только для придыхательных — بھ, ٹھ, گھ."],
+  ["ء", "хамза", "смычка между гласными", 0, "جرأت", "Маленький знак, часто над другой буквой."],
+  ["ی", "чхоти йэ", "й / и", 1, "جی", "Изогнутая чаша (в середине слова — с двумя точками снизу)."],
+  ["ے", "бари йэ", "э / е (в конце слова)", 0, "سے", "Длинный хвост влево, только в конце слова."],
+];
+
+// =====================================================================
+// Состояние (хранится только в этом браузере)
+// =====================================================================
+const KEY = "sher-urdu-v1";
+const today = () => new Date().toISOString().slice(0, 10);
+let S = { xp: 0, hearts: 5, heartsDay: today(), streak: 0, lastDay: null, done: {}, letters: {}, words: {}, script: "nastaliq", sound: true, lessons: 0 };
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s) S = Object.assign(S, s); } catch (e) {}
+if (S.heartsDay !== today()) { S.hearts = 5; S.heartsDay = today(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} renderStats(); }
+
+const $ = s => document.querySelector(s);
+const h = html => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// Текст с вкраплениями урду: каждый арабский фрагмент — в изолированный <span class="ur">, чтобы не путался порядок слов
+const mixed = s => esc(s).replace(/[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u200c\u200d]+(?:[ \u00a0][\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF\u200c\u200d]+)*/g, m => `<span class="ur inl">${m}</span>`);
+const ICON = {
+  star: f => `<svg viewBox="0 0 24 24" fill="${f ? "#f2cf7a" : "rgba(242,207,122,.25)"}"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>`,
+  lock: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>`,
+  play: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-10"/></svg>`,
+  quill: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>`,
+  sound: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>`,
+  close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+};
+function toast(t) { const d = h(`<div class="toast">${t}</div>`); document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+function renderStats() { $("#sStreak").textContent = S.streak; $("#sXp").textContent = S.xp; $("#sHearts").textContent = S.hearts; }
+
+// ---------- Шрифт: насталик / насх ----------
+function setScript(s) {
+  S.script = s; document.documentElement.dataset.script = s; save();
+  $("#scNastaliq").classList.toggle("on", s === "nastaliq"); $("#scNaskh").classList.toggle("on", s === "naskh");
+  if (current === "write") renderWrite(); else render();
+}
+document.querySelectorAll(".script-toggle button").forEach(b => b.onclick = () => setScript(b.dataset.s));
+
+// ---------- Озвучка ----------
+let urVoice = null, warnedVoice = false;
+function pickVoice() { if (!window.speechSynthesis) return; urVoice = speechSynthesis.getVoices().find(v => /^ur/i.test(v.lang)) || null; }
+if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(text) {
+  if (!S.sound) return;
+  if (!window.speechSynthesis) { if (!warnedVoice) toast("Этот браузер не умеет озвучивать текст."); warnedVoice = true; return; }
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text); u.lang = "ur-PK"; u.rate = 0.85;
+    if (urVoice) u.voice = urVoice; else if (!warnedVoice) { toast("Голоса урду на устройстве не нашлось. На Android: Настройки → Синтез речи → Google → установить «Урду»."); warnedVoice = true; }
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+// =====================================================================
+// Навигация по вкладкам
+// =====================================================================
+let current = "path";
+document.querySelectorAll(".tab").forEach(t => t.onclick = () => { current = t.dataset.tab; render(); window.scrollTo(0, 0); });
+function render() {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("on", t.dataset.tab === current));
+  const v = $("#view"); v.innerHTML = "";
+  ({ path: renderPath, abc: renderAbc, write: renderWrite, me: renderMe })[current]();
+}
+
+// =====================================================================
+// Путь уроков
+// =====================================================================
+const LESSONS_PER_UNIT = 3;
+const lessonId = (u, k) => `${u.id}-${k}`;
+function lessonState(ui, k) {
+  const id = lessonId(UNITS[ui], k);
+  if (S.done[id]) return "done";
+  const prev = k > 0 ? lessonId(UNITS[ui], k - 1) : ui > 0 ? lessonId(UNITS[ui - 1], LESSONS_PER_UNIT - 1) : null;
+  return !prev || S.done[prev] ? "current" : "locked";
+}
+const LESSON_NAMES = ["Новые слова", "Ещё слова", "Фразы и повторение"];
+function renderPath() {
+  const v = $("#view");
+  v.appendChild(h(`<div><div class="eyebrow">Путь</div><h1>Урду шаг за шагом</h1><div class="stripes"></div></div>`));
+  UNITS.forEach((u, ui) => {
+    const sec = h(`<section class="unit"><div class="unit-head"><div class="t"><b>${ui + 1}. ${u.title}</b><span>${u.sub}</span></div><div class="ur uw">${u.uw}</div></div><div class="path"></div></section>`);
+    const path = sec.querySelector(".path");
+    for (let k = 0; k < LESSONS_PER_UNIT; k++) {
+      const st = lessonState(ui, k), id = lessonId(u, k), stars = S.done[id] || 0;
+      const off = Math.sin((ui * LESSONS_PER_UNIT + k) * 1.3) * 70;
+      const label = u.grammar && k === 0 ? "Правило и слова" : LESSON_NAMES[k];
+      const w = h(`<div class="node-wrap" style="transform: translateX(${off}px)">
+        <button class="node ${st === "locked" ? "locked" : st === "current" ? "current" : ""}" aria-label="${esc(label)}">
+          ${st === "locked" ? ICON.lock : st === "done" ? ICON.check : ICON.play}
+          ${st === "done" ? `<span class="stars">${[1, 2, 3].map(i => ICON.star(i <= stars)).join("")}</span>` : ""}
+        </button><div class="node-label">${label}</div></div>`);
+      w.querySelector("button").onclick = () => st === "locked" ? toast("Сначала пройдите предыдущий урок.") : startLesson(ui, k);
+      path.appendChild(w);
+    }
+    v.appendChild(sec);
+  });
+}
+
+// =====================================================================
+// Генерация упражнений
+// =====================================================================
+function allItems() { return UNITS.flatMap(u => u.items); }
+function buildLesson(ui, k) {
+  const u = UNITS[ui], items = u.items, half = Math.ceil(items.length / 2);
+  const fresh = k === 0 ? items.slice(0, half) : k === 1 ? items.slice(half) : items;
+  const pool = allItems();
+  const q = [];
+  if (u.rule && k === 0) q.push({ type: "rule", rule: u.rule });
+  if (k < 2) fresh.forEach(it => q.push({ type: "teach", item: it }));
+  fresh.forEach((it, i) => {
+    const others = pool.filter(o => o.ur !== it.ur && o.ru !== it.ru);
+    q.push({ type: "choice", dir: "ur2ru", item: it, options: shuffle([it, ...pick(others, 3)]) });
+    q.push({ type: "choice", dir: "ru2ur", item: it, options: shuffle([it, ...pick(others, 3)]) });
+  });
+  if (fresh.length >= 3) q.push({ type: "match", pairs: pick(fresh, Math.min(5, fresh.length)) });
+  if (u.fills && k > 0) pick(u.fills, k === 1 ? 3 : u.fills.length).forEach(f => q.push({ type: "fill", f }));
+  if (u.fills && k === 0) pick(u.fills, 2).forEach(f => q.push({ type: "fill", f }));
+  if (k === 2 || u.grammar) u.phrases.forEach(p => q.push({ type: "build", p }));
+  else if (k === 1 && u.phrases[0]) q.push({ type: "build", p: u.phrases[0] });
+  q.push({ type: "trace", text: u.trace[k % u.trace.length] });
+  return q;
+}
+
+// =====================================================================
+// Урок
+// =====================================================================
+let L = null;
+function startLesson(ui, k) {
+  if (S.hearts <= 0) { toast("Сердца закончились. Потренируйте письмо во вкладке «Письмо» — каждая буква на 3 звезды вернёт сердце."); return; }
+  L = { ui, k, q: buildLesson(ui, k), i: 0, mistakes: 0, correct: 0 };
+  const el = h(`<div class="lesson"><div class="lesson-in">
+    <div class="lesson-top"><button class="x" aria-label="Закрыть урок">${ICON.close}</button><div class="bar"><i></i></div>
+      <span class="stat"><svg viewBox="0 0 24 24" fill="#e0475a" width="18" height="18"><path d="M12 21s-8-5-8-11a5 5 0 0 1 8-3 5 5 0 0 1 8 3c0 6-8 11-8 11z"/></svg><b class="lh">${S.hearts}</b></span></div>
+    <div class="ex"></div><div class="lesson-foot"><button class="btn wide go" disabled>Проверить</button></div></div></div>`);
+  document.body.appendChild(el); document.body.style.overflow = "hidden";
+  el.querySelector(".x").onclick = closeLesson;
+  L.el = el; showEx();
+}
+function closeLesson() { if (L && L.el) L.el.remove(); document.querySelectorAll(".sheet").forEach(s => s.remove()); document.body.style.overflow = ""; L = null; render(); }
+function setGo(text, enabled, fn) { const b = L.el.querySelector(".go"); b.textContent = text; b.disabled = !enabled; b.onclick = fn; }
+
+function showEx() {
+  const ex = L.el.querySelector(".ex"); ex.innerHTML = ""; ex.scrollTop = 0;
+  L.el.querySelector(".bar i").style.width = (100 * L.i / L.q.length) + "%";
+  if (L.i >= L.q.length) return finishLesson();
+  const e = L.q[L.i];
+  ({ teach: exTeach, choice: exChoice, match: exMatch, build: exBuild, fill: exFill, rule: exRule, trace: exTrace })[e.type](e, ex);
+}
+function next() { document.querySelectorAll(".sheet").forEach(s => s.remove()); L.i++; showEx(); }
+function feedback(ok, html) {
+  if (ok) { L.correct++; S.xp += 1; } else { L.mistakes++; S.hearts = Math.max(0, S.hearts - 1); L.el.querySelector(".lh").textContent = S.hearts; L.q.push(L.q[L.i]); }
+  save();
+  const sh = h(`<div class="sheet ${ok ? "ok" : "bad"}"><div class="in"><div class="head">${ok ? pick(["Отлично!", "Верно!", "Шабааш! — молодец!", "Правильно!"], 1)[0] : "Не совсем"}</div>
+    ${html || ""}<button class="btn wide">${S.hearts <= 0 && !ok ? "Закончить" : "Продолжить"}</button></div></div>`);
+  document.body.appendChild(sh);
+  sh.querySelector("button").onclick = () => (S.hearts <= 0 && !ok) ? (toast("Сердца закончились — вернитесь завтра или потренируйте письмо."), closeLesson()) : next();
+  setGo("Проверить", false, null);
+}
+const speakBtn = text => `<button class="speak" aria-label="Послушать" data-say="${esc(text)}">${ICON.sound}</button>`;
+function wireSpeak(root) { root.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say)); }
+
+function exTeach(e, ex) {
+  const it = e.item;
+  ex.appendChild(h(`<div class="teach"><div class="eyebrow">Новое слово</div>
+    <div class="ur big">${it.ur}</div><div class="translit">${it.tr}</div><div class="ru">${esc(it.ru)}</div>
+    <div style="margin-top:10px">${speakBtn(it.ur)}</div>
+    ${it.note ? `<div class="panel note">${mixed(it.note)}</div>` : ""}</div>`));
+  wireSpeak(ex); setGo("Дальше", true, next);
+  if (S.sound) say(it.ur);
+}
+function exChoice(e, ex) {
+  const it = e.item, ur2ru = e.dir === "ur2ru";
+  ex.appendChild(h(`<div><h2>${ur2ru ? "Что это значит?" : "Как это будет на урду?"}</h2>
+    ${ur2ru ? `<div class="prompt-ur ur">${it.ur}</div><div style="text-align:center">${speakBtn(it.ur)}</div>` : `<div class="prompt-ru">${esc(it.ru)}</div>`}
+    <div class="options">${e.options.map((o, i) => `<button class="opt ${ur2ru ? "" : "ur"}" data-i="${i}">${ur2ru ? esc(o.ru) : o.ur}</button>`).join("")}</div></div>`));
+  wireSpeak(ex);
+  let sel = null;
+  ex.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    ex.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); b.classList.add("sel"); sel = +b.dataset.i;
+    if (!ur2ru) say(e.options[sel].ur);
+    setGo("Проверить", true, () => {
+      const ok = e.options[sel] === it;
+      ex.querySelectorAll(".opt").forEach((x, i) => { x.disabled = true; if (e.options[i] === it) x.classList.add("right"); else if (i === sel) x.classList.add("wrong"); });
+      feedback(ok, ok ? `<div><span class="ur">${it.ur}</span> — ${esc(it.ru)} <span class="muted">(${it.tr})</span></div>` : `<div>Правильно: <span class="ur">${it.ur}</span> — ${esc(it.ru)}</div>`);
+    });
+  });
+}
+function exMatch(e, ex) {
+  const left = shuffle(e.pairs), right = shuffle(e.pairs);
+  ex.appendChild(h(`<div><h2>Соедините пары</h2><div class="pairs">
+    <div style="display:grid;gap:10px">${left.map((it, i) => `<button class="opt ur" data-side="l" data-i="${i}">${it.ur}</button>`).join("")}</div>
+    <div style="display:grid;gap:10px">${right.map((it, i) => `<button class="opt" data-side="r" data-i="${i}">${esc(it.ru)}</button>`).join("")}</div></div></div>`));
+  let selL = null, selR = null, done = 0, errs = 0;
+  const tryPair = () => {
+    if (selL === null || selR === null) return;
+    const bl = ex.querySelector(`[data-side=l][data-i="${selL}"]`), br = ex.querySelector(`[data-side=r][data-i="${selR}"]`);
+    if (left[selL] === right[selR]) { [bl, br].forEach(b => { b.classList.remove("sel"); b.classList.add("done"); b.disabled = true; }); done++; say(left[selL].ur); }
+    else { errs++; [bl, br].forEach(b => { b.classList.add("wrong"); setTimeout(() => b.classList.remove("wrong", "sel"), 450); }); }
+    selL = selR = null;
+    if (done === e.pairs.length) { if (errs === 0) { L.correct++; S.xp += 2; save(); } setGo("Дальше", true, next); }
+  };
+  ex.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+    const side = b.dataset.side, i = +b.dataset.i;
+    ex.querySelectorAll(`[data-side=${side}]`).forEach(x => x.classList.remove("sel")); b.classList.add("sel");
+    if (side === "l") { selL = i; say(left[i].ur); } else selR = i;
+    tryPair();
+  });
+}
+function exBuild(e, ex) {
+  const p = e.p, words = p.ur.split(" ");
+  const extra = pick(EXTRA_DISTRACTORS.filter(w => !words.includes(w)), Math.min(3, Math.max(2, 6 - words.length)));
+  const tiles = shuffle([...words, ...extra]);
+  ex.appendChild(h(`<div><h2>Соберите фразу на урду</h2><div class="prompt-ru">${esc(p.ru)}</div>
+    <div class="answer-line ur" aria-label="Ваш ответ"></div><div class="bank ur">${tiles.map((w, i) => `<button class="tile ur" data-i="${i}">${w}</button>`).join("")}</div>
+    <p class="muted" style="text-align:center;font-size:13px">Урду пишется справа налево: первое слово — справа.</p></div>`));
+  const line = ex.querySelector(".answer-line"), chosen = [];
+  const sync = () => setGo("Проверить", chosen.length > 0, check);
+  ex.querySelectorAll(".bank .tile").forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; b.classList.add("used"); chosen.push(i); say(tiles[i]);
+    const t = h(`<button class="tile ur">${tiles[i]}</button>`);
+    t.onclick = () => { chosen.splice(chosen.indexOf(i), 1); t.remove(); b.classList.remove("used"); sync(); };
+    line.appendChild(t); sync();
+  });
+  function check() {
+    const got = chosen.map(i => tiles[i]).join(" "), ok = got === p.ur;
+    ex.querySelectorAll(".tile").forEach(t => t.disabled = true);
+    const brk = `<div class="wordbreak">${p.ur.split(" ").map((w, i) => `<div><div class="w ur">${w}</div><div class="g">${esc(p.gloss[i] || "")}</div></div>`).join("")}</div>`;
+    feedback(ok, `<div><span class="ur">${p.ur}</span> <span class="muted">— ${p.tr}</span></div>${brk}${p.note ? `<div class="muted" style="font-size:14px">${mixed(p.note)}</div>` : ""}`);
+    if (ok) say(p.ur);
+  }
+}
+function exFill(e, ex) {
+  const f = e.f, opts = shuffle(f.options || ["کا", "کی", "کے"]);
+  const [a, b] = f.ur.split("___");
+  ex.appendChild(h(`<div><h2>Вставьте пропущенное слово</h2><div class="prompt-ru">${esc(f.ru)}</div>
+    <div class="fill-sentence ur">${a}<span class="gap">…</span>${b}</div>
+    <div class="options" style="grid-template-columns:repeat(${opts.length},1fr)">${opts.map(o => `<button class="opt ur">${o}</button>`).join("")}</div></div>`));
+  let sel = null;
+  ex.querySelectorAll(".opt").forEach(btn => btn.onclick = () => {
+    ex.querySelectorAll(".opt").forEach(x => x.classList.remove("sel")); btn.classList.add("sel"); sel = btn.textContent;
+    ex.querySelector(".gap").textContent = sel;
+    setGo("Проверить", true, () => {
+      const ok = sel === f.answer;
+      ex.querySelectorAll(".opt").forEach(x => { x.disabled = true; if (x.textContent === f.answer) x.classList.add("right"); else if (x.textContent === sel) x.classList.add("wrong"); });
+      feedback(ok, `<div><span class="ur">${a}${f.answer}${b}</span></div><div style="font-size:14px">${mixed(f.why)}</div>`);
+    });
+  });
+}
+function exRule(e, ex) {
+  ex.appendChild(h(`<div class="rule"><div class="eyebrow">Правило</div><h2>${e.rule.title}</h2><div class="panel">${e.rule.html}</div></div>`));
+  setGo("Понятно", true, next);
+}
+function exTrace(e, ex) {
+  ex.appendChild(h(`<div><div class="eyebrow">Письмо</div><h2>Обведите пальцем</h2><p class="muted" style="margin-top:-8px">Шрифт: ${S.script === "nastaliq" ? "насталик" : "насх"} (переключается сверху на главном экране).</p><div class="tracer"></div></div>`));
+  makeTracer(ex.querySelector(".tracer"), e.text, S.script, "trace", res => {
+    setGo(res.stars ? "Дальше" : "Пропустить", true, () => { if (res.stars) { L.correct++; S.xp += res.stars; save(); } next(); });
+  });
+  setGo("Пропустить", true, next);
+}
+function finishLesson() {
+  const total = L.correct + L.mistakes, acc = total ? L.correct / total : 1;
+  const stars = L.mistakes === 0 ? 3 : acc >= 0.75 ? 2 : 1;
+  const id = lessonId(UNITS[L.ui], L.k);
+  S.done[id] = Math.max(S.done[id] || 0, stars); S.xp += 10; S.lessons++;
+  const t = today();
+  if (S.lastDay !== t) { const y = new Date(Date.now() - 864e5).toISOString().slice(0, 10); S.streak = S.lastDay === y ? S.streak + 1 : 1; S.lastDay = t; }
+  save();
+  const ex = L.el.querySelector(".ex");
+  ex.innerHTML = ""; L.el.querySelector(".bar i").style.width = "100%";
+  ex.appendChild(h(`<div class="done-screen"><div class="seal">شیر</div><h1>Урок пройден</h1>
+    <div class="score"><span class="stars" style="display:flex">${[1, 2, 3].map(i => ICON.star(i <= stars)).join("")}</span></div>
+    <div class="muted">Верных ответов: ${L.correct}, ошибок: ${L.mistakes}. +10 опыта за урок. Серия: ${S.streak} дн.</div></div>`));
+  setGo("На путь", true, closeLesson);
+}
+
+// =====================================================================
+// Тренажёр письма: обводка по шаблону и письмо по памяти
+// =====================================================================
+const FONT_NAME = { nastaliq: '"Noto Nastaliq Urdu"', naskh: '"Noto Naskh Arabic"' };
+function glyphLayout(ctx, text, script, W, H) {
+  ctx.font = `100px ${FONT_NAME[script]}`; ctx.direction = "rtl"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  const m = ctx.measureText(text);
+  const w = (m.actualBoundingBoxLeft + m.actualBoundingBoxRight) || 100, hh = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) || 100;
+  const s = 100 * Math.min(0.74 * W / w, 0.7 * H / hh);
+  ctx.font = `${s}px ${FONT_NAME[script]}`;
+  const m2 = ctx.measureText(text);
+  const x = W / 2 - (m2.actualBoundingBoxRight - m2.actualBoundingBoxLeft) / 2;
+  const y = H / 2 + (m2.actualBoundingBoxAscent - m2.actualBoundingBoxDescent) / 2;
+  return { x, y, size: s };
+}
+function makeTracer(host, text, script, mode, onScore) {
+  host.innerHTML = `<div class="canvas-wrap"><canvas class="guide"></canvas><canvas class="ink"></canvas><span class="dir">← пишем справа налево</span></div>
+    <div class="write-actions"><button class="btn ghost undo">Отменить</button><button class="btn ghost clear">Стереть</button><button class="btn check">Проверить</button></div>
+    <div class="score" hidden><span class="stars" style="display:flex"></span><span class="txt"></span></div>`;
+  const wrap = host.querySelector(".canvas-wrap"), gc = host.querySelector(".guide"), ic = host.querySelector(".ink");
+  const strokes = []; let cur = null, W = 0, layout = null, revealed = mode !== "memory";
+  const brush = () => W * 0.055;
+  function size() {
+    W = wrap.clientWidth; const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    [gc, ic].forEach(c => { c.width = W * dpr; c.height = W * dpr; c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0); });
+    drawGuide(); drawInk();
+  }
+  function drawGuide() {
+    const g = gc.getContext("2d"); g.clearRect(0, 0, W, W);
+    // сетка «тетради»: базовая линия и поля
+    g.strokeStyle = "rgba(140,90,44,.18)"; g.lineWidth = 1;
+    [0.25, 0.5, 0.75].forEach(f => { g.beginPath(); g.moveTo(0, W * f); g.lineTo(W, W * f); g.stroke(); });
+    layout = glyphLayout(g, text, script, W, W);
+    g.beginPath(); g.strokeStyle = "rgba(158,36,51,.35)"; g.setLineDash([6, 6]); g.moveTo(0, layout.y); g.lineTo(W, layout.y); g.stroke(); g.setLineDash([]);
+    if (revealed) { g.fillStyle = "rgba(122,74,30,.24)"; g.fillText(text, layout.x, layout.y); }
+  }
+  function drawInk() {
+    const c = ic.getContext("2d"); c.clearRect(0, 0, W, W);
+    c.lineCap = "round"; c.lineJoin = "round"; c.strokeStyle = "#2a0a0e"; c.lineWidth = brush();
+    for (const s of strokes) { c.beginPath(); s.forEach((p, i) => i ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1])); if (s.length === 1) c.lineTo(s[0][0] + 0.1, s[0][1]); c.stroke(); }
+  }
+  const pos = ev => { const r = ic.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+  ic.addEventListener("pointerdown", ev => { ev.preventDefault(); ic.setPointerCapture(ev.pointerId); cur = [pos(ev)]; strokes.push(cur); drawInk(); });
+  ic.addEventListener("pointermove", ev => { if (!cur) return; cur.push(pos(ev)); drawInk(); });
+  const end = () => { cur = null; };
+  ic.addEventListener("pointerup", end); ic.addEventListener("pointercancel", end);
+  host.querySelector(".undo").onclick = () => { strokes.pop(); drawInk(); };
+  host.querySelector(".clear").onclick = () => { strokes.length = 0; if (mode === "memory") { revealed = false; drawGuide(); } drawInk(); host.querySelector(".score").hidden = true; };
+  host.querySelector(".check").onclick = () => {
+    if (!strokes.length) { toast("Сначала напишите букву пальцем или мышью."); return; }
+    const sc = score(text, script, strokes, W, brush());
+    const stars = sc >= 0.78 ? 3 : sc >= 0.64 ? 2 : sc >= 0.5 ? 1 : 0;
+    if (mode === "memory") { revealed = true; drawGuide(); }
+    const box = host.querySelector(".score"); box.hidden = false;
+    box.querySelector(".stars").innerHTML = [1, 2, 3].map(i => ICON.star(i <= stars)).join("");
+    box.querySelector(".txt").innerHTML = `<b>${Math.round(sc * 100)}%</b> совпадения. ${stars === 3 ? "Красиво!" : stars === 2 ? "Хорошо, ещё чуть точнее." : stars === 1 ? "Похоже, но форма уходит от образца." : "Попробуйте ещё: ведите по золотому силуэту."}`;
+    onScore && onScore({ score: sc, stars });
+  };
+  document.fonts.load(`80px ${FONT_NAME[script]}`, text).then(size, size);
+  new ResizeObserver(() => { if (wrap.clientWidth && wrap.clientWidth !== W) size(); }).observe(wrap);
+}
+const SCORE_OPT = { tol: 1.0, wide: 1.5 };
+// Оценка письма (0…1). Три составляющие:
+//  P — точность: доля штрихов внутри слегка расширенного силуэта образца;
+//  R — полнота по частям: каждая связная часть буквы (тело, каждая точка) должна быть обведена — среднее по частям;
+//  B — совпадение габаритов (IoU рамок) написанного и образца.
+// Итог: F-мера(P, R) × (0.5 + 0.5·B). Так черта «через слово» или чужая буква не набирают звёзд.
+function score(text, script, strokes, W, brush, opt = SCORE_OPT) {
+  const N = 128, k = N / W;
+  const mk = () => { const c = document.createElement("canvas"); c.width = c.height = N; const g = c.getContext("2d"); g.setTransform(k, 0, 0, k, 0, 0); return [c, g]; };
+  const [c1, core] = mk(); const L1 = glyphLayout(core, text, script, W, W); core.fillStyle = "#000"; core.fillText(text, L1.x, L1.y);
+  const [c2, tol] = mk(); const L2 = glyphLayout(tol, text, script, W, W); tol.fillStyle = "#000"; tol.strokeStyle = "#000";
+  tol.lineWidth = brush * opt.tol; tol.lineJoin = "round"; tol.fillText(text, L2.x, L2.y); tol.strokeText(text, L2.x, L2.y);
+  const ink = wd => { const [c, g] = mk(); g.lineCap = "round"; g.lineJoin = "round"; g.strokeStyle = "#000"; g.lineWidth = wd;
+    for (const s of strokes) { g.beginPath(); s.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); if (s.length === 1) g.lineTo(s[0][0] + 0.1, s[0][1]); g.stroke(); } return c; };
+  const A = c => c.getContext("2d").getImageData(0, 0, N, N).data;
+  const dc = A(c1), dt = A(c2), du = A(ink(brush)), dw = A(ink(brush * opt.wide));
+  const on = (d, i) => d[i * 4 + 3] > 60;
+  let nu = 0, nuIn = 0;
+  const box = () => ({ x0: N, y0: N, x1: -1, y1: -1 }), bu = box(), bg = box();
+  const grow = (b, x, y) => { b.x0 = Math.min(b.x0, x); b.y0 = Math.min(b.y0, y); b.x1 = Math.max(b.x1, x); b.y1 = Math.max(b.y1, y); };
+  for (let i = 0; i < N * N; i++) {
+    if (on(du, i)) { nu++; if (on(dt, i)) nuIn++; grow(bu, i % N, (i / N) | 0); }
+    if (on(dc, i)) grow(bg, i % N, (i / N) | 0);
+  }
+  if (!nu || bg.x1 < 0) return 0;
+  // связные части образца (заливка по 8 соседям), крошечные шумовые пиксели отбрасываем
+  const seen = new Uint8Array(N * N), parts = [];
+  for (let i = 0; i < N * N; i++) {
+    if (!on(dc, i) || seen[i]) continue;
+    const st = [i]; seen[i] = 1; let n = 0, cov = 0;
+    while (st.length) {
+      const j = st.pop(); n++; if (on(dw, j)) cov++;
+      const x = j % N, y = (j / N) | 0;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const xx = x + dx, yy = y + dy, q = yy * N + xx;
+        if (xx >= 0 && yy >= 0 && xx < N && yy < N && !seen[q] && on(dc, q)) { seen[q] = 1; st.push(q); }
+      }
+    }
+    if (n >= 4) parts.push(cov / n);
+  }
+  if (!parts.length) return 0;
+  const P = nuIn / nu, R = parts.reduce((a, b) => a + b, 0) / parts.length;
+  const F = P + R ? 2 * P * R / (P + R) : 0;
+  const ix = Math.max(0, Math.min(bu.x1, bg.x1) - Math.max(bu.x0, bg.x0)), iy = Math.max(0, Math.min(bu.y1, bg.y1) - Math.max(bu.y0, bg.y0));
+  const area = b => Math.max(1, (b.x1 - b.x0) * (b.y1 - b.y0));
+  const B = ix * iy / (area(bu) + area(bg) - ix * iy);
+  return F * (0.5 + 0.5 * B);
+}
+
+// =====================================================================
+// Алфавит
+// =====================================================================
+const ZWJ = "‍";
+function renderAbc() {
+  const v = $("#view");
+  v.appendChild(h(`<div><div class="eyebrow">Алфавит</div><h1>Буквы урду</h1>
+    <p class="muted">39 букв, пишутся справа налево. Большинство букв соединяются с соседями и меняют форму; ${LETTERS.filter(l => !l[3]).length} букв не соединяются со следующей. Нажмите на букву — формы, звук и тренировка письма.</p><div class="stripes"></div></div>`));
+  const grid = h(`<div class="abc"></div>`);
+  LETTERS.forEach((L0, i) => {
+    const best = S.letters[S.script + ":" + L0[0]] || 0;
+    const b = h(`<button class="letter"><span class="best">${best ? [1, 2, 3].map(j => ICON.star(j <= best)).join("") : ""}</span>
+      <span class="g ur">${L0[0]}</span><span class="n">${L0[1]}</span><span class="s">${L0[2]}</span></button>`);
+    b.onclick = () => letterSheet(i);
+    grid.appendChild(b);
+  });
+  v.appendChild(grid);
+}
+function letterSheet(i) {
+  const [ch, name, sound, joins, word, tip] = LETTERS[i];
+  const forms = joins ? [[ch, "отдельно"], [ch + ZWJ, "в начале"], [ZWJ + ch + ZWJ, "в середине"], [ZWJ + ch, "в конце"]]
+                      : [[ch, "отдельно"], [ch, "в начале"], [ZWJ + ch, "в середине"], [ZWJ + ch, "в конце"]];
+  const m = h(`<div class="modal"><div class="card">
+    <div style="display:flex;align-items:center;gap:12px"><div class="ur" style="font-size:54px;color:var(--gold-hi)">${ch}</div>
+      <div style="flex:1"><h2>${name}</h2><div class="muted">звук: ${sound}${joins ? "" : " · не соединяется со следующей"}</div></div>${speakBtn(ch)}</div>
+    <div class="forms">${forms.map(f => `<div><span class="ur">${f[0]}</span><small>${f[1]}</small></div>`).join("")}</div>
+    <div class="panel"><b>Как писать:</b> ${mixed(tip)}<div style="margin-top:6px">Пример: <span class="ur" style="font-size:24px;color:var(--gold-hi)">${word}</span> ${speakBtn(word)}</div></div>
+    <div class="compare"><div><span class="ur nastaliq">${word}</span><small>насталик</small></div><div><span class="ur naskh">${word}</span><small>насх</small></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px"><button class="btn ghost cl">Закрыть</button><button class="btn wr">Написать</button></div>
+  </div></div>`);
+  document.body.appendChild(m); wireSpeak(m);
+  m.onclick = ev => { if (ev.target === m) m.remove(); };
+  m.querySelector(".cl").onclick = () => m.remove();
+  m.querySelector(".wr").onclick = () => { m.remove(); W8.target = ch; current = "write"; render(); };
+}
+
+// =====================================================================
+// Письмо: отдельные режимы для насха и насталика
+// =====================================================================
+const W8 = { script: null, mode: "trace", target: "ب" };
+const WORDS = ["سلام", "دل", "محبت", "شکریہ", "گھر", "کتاب", "دوست", "میں", "نام", "خوش"];
+function renderWrite() {
+  const v = $("#view"); v.innerHTML = "";
+  const script = W8.script || S.script;
+  v.appendChild(h(`<div><div class="eyebrow">Письмо</div><h1>Каллиграфия пальцем</h1>
+    <p class="muted">Насх — прямая строка, буквы читаются легко. Насталик — «висящая» диагональная строка, традиционный почерк урду. Тренируйте их отдельно.</p></div>`));
+  const ctl = h(`<div class="panel" style="display:grid;gap:10px">
+    <div><div class="eyebrow" style="margin-bottom:4px">Почерк</div><div class="seg">
+      <button class="chip ${script === "nastaliq" ? "on" : ""}" data-sc="nastaliq">Насталик <span class="ur nastaliq">نستعلیق</span></button>
+      <button class="chip ${script === "naskh" ? "on" : ""}" data-sc="naskh">Насх <span class="ur naskh">نسخ</span></button></div></div>
+    <div><div class="eyebrow" style="margin-bottom:4px">Режим</div><div class="seg">
+      <button class="chip ${W8.mode === "trace" ? "on" : ""}" data-m="trace">Обвести по образцу</button>
+      <button class="chip ${W8.mode === "memory" ? "on" : ""}" data-m="memory">По памяти</button></div></div></div>`);
+  ctl.querySelectorAll("[data-sc]").forEach(b => b.onclick = () => { W8.script = b.dataset.sc; renderWrite(); });
+  ctl.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { W8.mode = b.dataset.m; renderWrite(); });
+  v.appendChild(ctl);
+  const targets = h(`<div class="targets">${[...LETTERS.map(l => l[0]), ...WORDS].map(t => `<button class="chip ${t === W8.target ? "on" : ""}"><span class="${script} ur">${t}</span></button>`).join("")}</div>`);
+  targets.querySelectorAll("button").forEach(b => b.onclick = () => { W8.target = b.textContent; renderWrite(); });
+  v.appendChild(targets);
+  const info = LETTERS.find(l => l[0] === W8.target);
+  v.appendChild(h(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="flex:1"><b>${info ? info[1] + " · " + info[2] : "Слово"}</b>
+    <div class="muted" style="font-size:13px">${W8.mode === "memory" ? "Образец скрыт: напишите по памяти и нажмите «Проверить» — образец появится для сравнения." : "Ведите пальцем по светлому силуэту. Пунктир — линия строки."}</div></div>${speakBtn(W8.target)}</div>`));
+  const host = h(`<div></div>`); v.appendChild(host); wireSpeak(v);
+  makeTracer(host, W8.target, script, W8.mode, res => {
+    const key = script + ":" + W8.target, prev = S.letters[key] || 0;
+    if (res.stars > prev) { S.letters[key] = res.stars; S.xp += res.stars - prev; }
+    if (res.stars === 3 && S.hearts < 5) { S.hearts++; toast("Чистая работа — +1 сердце."); }
+    save();
+  });
+  if (info) v.appendChild(h(`<div class="tip"><b>Подсказка:</b> ${mixed(info[5])}</div>`));
+  v.appendChild(h(`<div class="compare"><div><span class="ur nastaliq">${W8.target}</span><small>насталик</small></div><div><span class="ur naskh">${W8.target}</span><small>насх</small></div></div>`));
+}
+
+// =====================================================================
+// Профиль
+// =====================================================================
+function renderMe() {
+  const v = $("#view");
+  const lessonsDone = Object.keys(S.done).length, totalL = UNITS.length * LESSONS_PER_UNIT;
+  const letters = Object.keys(S.letters).filter(k => S.letters[k] === 3).length;
+  v.appendChild(h(`<div><div class="eyebrow">Профиль</div><h1>Ваш прогресс</h1>
+    <div class="kpis"><div class="kpi"><b>${S.streak}</b><span>дней подряд</span></div><div class="kpi"><b>${S.xp}</b><span>опыта</span></div><div class="kpi"><b>${lessonsDone}/${totalL}</b><span>уроков</span></div></div>
+    <div class="kpis" style="grid-template-columns:1fr 1fr"><div class="kpi"><b>${letters}</b><span>букв и слов на 3 звезды</span></div><div class="kpi"><b>${S.hearts}/5</b><span>сердец (обновляются каждый день)</span></div></div>
+    <div class="panel"><div class="row"><span>Озвучка слов</span><button class="switch ${S.sound ? "on" : ""}" id="swSound" aria-label="Озвучка"></button></div>
+      <div class="row" style="border:0"><span>Сбросить прогресс</span><button class="btn ghost" id="reset" style="padding:8px 14px">Сбросить</button></div><div id="resetConfirm"></div></div>
+    <div class="about" style="margin-top:16px"><h2>Насх и насталик</h2>
+      <div class="compare"><div><span class="ur nastaliq">مجھے تم سے محبت ہے</span><small>насталик</small></div><div><span class="ur naskh">مجھے تم سے محبت ہے</span><small>насх</small></div></div>
+      <p><b>Насталик</b> — почерк, которым пишут урду в Пакистане и Индии: слово «свисает» по диагонали справа сверху налево вниз, буквы сильно меняют форму. Красиво, но сложнее читать.</p>
+      <p><b>Насх</b> — почерк арабских книг: строка ровная, формы проще. Удобен, чтобы выучить буквы, затем переходите на насталик.</p>
+      <p>Прогресс хранится только в этом браузере.</p></div></div>`));
+  $("#swSound").onclick = () => { S.sound = !S.sound; save(); render(); };
+  $("#reset").onclick = () => {
+    $("#resetConfirm").innerHTML = `<div class="panel" style="margin-top:8px">Удалить опыт, серию и пройденные уроки?<div style="display:flex;gap:8px;margin-top:8px"><button class="btn ghost" id="no">Отмена</button><button class="btn" id="yes" style="background:var(--crimson);color:var(--ink);box-shadow:0 4px 0 #5a1018">Удалить</button></div></div>`;
+    $("#no").onclick = () => $("#resetConfirm").innerHTML = "";
+    $("#yes").onclick = () => { S = { xp: 0, hearts: 5, heartsDay: today(), streak: 0, lastDay: null, done: {}, letters: {}, words: {}, script: S.script, sound: S.sound, lessons: 0 }; save(); toast("Прогресс сброшен."); render(); };
+  };
+}
+
+// ---------- старт ----------
+document.documentElement.dataset.script = S.script;
+$("#scNastaliq").classList.toggle("on", S.script === "nastaliq"); $("#scNaskh").classList.toggle("on", S.script === "naskh");
+renderStats(); render();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
